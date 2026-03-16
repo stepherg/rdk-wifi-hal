@@ -1082,7 +1082,7 @@ int get_bw320_center_freq(wifi_radio_operationParam_t *param, const char *countr
 #endif /* CONFIG_IEEE80211BE */
 int pick_akm_suite(int sel);
 int wifi_hal_send_mgmt_frame(int apIndex,mac_address_t sta, const u8 *data,size_t data_len,unsigned int freq, unsigned int wait);
-#if defined(BANANA_PI_PORT) && defined(KERNEL_6_6)
+#if (defined(BANANA_PI_PORT) && defined(KERNEL_6_6)) || defined(DOCKER_SIM_PORT)
 int wifi_drv_sta_disassoc(void *priv, const u8 *own_addr, const u8 *addr, u16 reason, int link_id);
 #else
 int wifi_drv_sta_disassoc(void *priv, const u8 *own_addr, const u8 *addr, u16 reason);

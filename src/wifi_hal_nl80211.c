@@ -41,6 +41,9 @@
 #include <netlink/route/link/bridge.h>
 #include "wifi_hal.h"
 #include "wifi_hal_priv.h"
+#ifdef DOCKER_SIM_PORT
+#include "wifi_hal_radio_sim.h"
+#endif
 #include "wpa_auth_i.h"
 #include "driver_nl80211.h"
 #include "ieee802_11.h"
@@ -5554,6 +5557,7 @@ static void wiphy_info_mbssid(struct wpa_driver_capa *cap, struct nlattr *attr)
 }
 #endif /* defined(CONFIG_HW_CAPABILITIES) || defined(VNTXER5_PORT) || TARGET_GEMINI7_2 */
 
+#ifndef DOCKER_SIM_PORT
 static int wiphy_dump_handler(struct nl_msg *msg, void *arg)
 {
     wifi_radio_info_t *radio;
@@ -5926,6 +5930,7 @@ static int wiphy_dump_handler(struct nl_msg *msg, void *arg)
 
     return NL_SKIP;
 }
+#endif /* !DOCKER_SIM_PORT */
 
 static int wiphy_get_info_handler(struct nl_msg *msg, void *arg)
 {
@@ -6627,12 +6632,14 @@ static u32 fetch_nl80211_protocol_features(int nl_id, u32 *feat)
     return -1;
 }
 #else
+#ifndef DOCKER_SIM_PORT
 static int fetch_nl80211_protocol_features(int nl_id, u32 *feat)
 {
     (void)nl_id;
     (void)feat;
     return 0;
 }
+#endif /* !DOCKER_SIM_PORT */
 #endif // VNTXER5_PORT || TCXB7_PORT || TCXB8_PORT || XB10_PORT || SCXER10_PORT || TARGET_GEMINI7_2 || SCXF10_PORT
 
 #ifdef FEATURE_SINGLE_PHY
@@ -6721,6 +6728,7 @@ error:
 }
 #endif // FEATURE_SINGLE_PHY
 
+#ifndef DOCKER_SIM_PORT
 static int map_rdk_radios_and_indexes(void)
 {
 #ifdef FEATURE_SINGLE_PHY
@@ -6782,14 +6790,17 @@ static int map_rdk_radios_and_indexes(void)
     }
     return 0;
 }
+#endif /* !DOCKER_SIM_PORT */
 
 int init_nl80211()
 {
     int ret;
+#ifndef DOCKER_SIM_PORT
     u32 feat;
     unsigned int i;
-    struct nl_msg *msg;
+    struct nl_msg* msg;
     wifi_radio_info_t *radio;
+#endif   
     char thread_id[24];
     wifi_netlink_thread_info_t *core_thread_socket = NULL;
 
@@ -6885,6 +6896,13 @@ int init_nl80211()
     }
     init_interface_map();
 
+#ifdef DOCKER_SIM_PORT
+    if (populate_simulated_radios() != 0) {
+        wifi_hal_error_print("%s:%d: Failed to populate simulated radios\n",
+            __func__, __LINE__);
+        return -1;
+    }
+#else
     msg = nl80211_drv_cmd_msg(g_wifi_hal.nl80211_id, NULL, NLM_F_DUMP, NL80211_CMD_GET_WIPHY);
     if (msg == NULL) {
         return -1;
@@ -6906,6 +6924,7 @@ int init_nl80211()
     if (map_rdk_radios_and_indexes() != RETURN_OK) {
         return -1;
     }
+#endif /* DOCKER_SIM_PORT */
 
     wifi_hal_dbg_print("%s:%d: Number of supported radios: %d\n", __func__, __LINE__, g_wifi_hal.num_radios);
 
@@ -6927,6 +6946,7 @@ int init_nl80211()
         return -1;
     }
 
+#ifndef DOCKER_SIM_PORT
     for (i = 0; i < g_wifi_hal.num_radios; i++) {
         radio = &g_wifi_hal.radio_info[i];
 
@@ -7000,6 +7020,7 @@ int init_nl80211()
         wifi_hal_dbg_print("%s:%d: Found %d interfaces on radio index:%d\n", __func__, __LINE__,
             hash_map_count(radio->interface_map), radio->index);
     }
+#endif /* DOCKER_SIM_PORT */
 
     return 0;
 
@@ -11009,7 +11030,7 @@ int wifi_drv_add_ts(void *priv, u8 tsid, const u8 *addr, u8 user_priority, u16 a
     return 0;
 }
 
-#ifdef BANANA_PI_PORT
+#if defined(BANANA_PI_PORT) || defined(DOCKER_SIM_PORT)
 int wifi_drv_br_set_net_param(void *priv, enum drv_br_net_param param, const char *ifname,
     unsigned int val)
 #else
@@ -11362,7 +11383,7 @@ int wifi_drv_status(void *priv, char *buf, size_t buflen)
     return 0;
 }
 
-#ifdef BANANA_PI_PORT
+#if defined(BANANA_PI_PORT) || defined(DOCKER_SIM_PORT)
 int wifi_drv_get_survey(void *priv, unsigned int freq, int link_id)
 #else
 int wifi_drv_get_survey(void *priv, unsigned int freq)
@@ -11543,7 +11564,7 @@ void wifi_drv_send_action_cancel_wait(void *priv)
     wifi_hal_dbg_print("%s:%d: Enter\n", __func__, __LINE__);
 }
 
-#ifdef BANANA_PI_PORT
+#if defined(BANANA_PI_PORT) || defined(DOCKER_SIM_PORT)
 int wifi_drv_send_action(void *priv, unsigned int freq, unsigned int wait_time, const u8 *dst,
     const u8 *src, const u8 *bssid, const u8 *data, size_t data_len, int no_cck, int link_id)
 #else
@@ -11561,7 +11582,7 @@ int wifi_drv_send_action(void *priv, unsigned int freq, unsigned int wait_time, 
     unsigned char *buf;
     struct ieee80211_hdr *hdr;
     int offchanok = 1;
-#ifndef BANANA_PI_PORT
+#if !defined(BANANA_PI_PORT) && !defined(DOCKER_SIM_PORT)
     int link_id = -1;
 #endif // BANANA_PI_PORT
 
@@ -11835,7 +11856,7 @@ int wifi_send_response_failure(int ap_index, const u8 *mac, int frame_type, int 
 #if !defined(PLATFORM_LINUX)
 #ifdef HOSTAPD_2_11 //2.11
                 /* setting allow_mld_addr_trans to false */
-#if defined(BANANA_PI_PORT) && defined(KERNEL_6_6)
+#if (defined(BANANA_PI_PORT) && defined(KERNEL_6_6)) || defined(DOCKER_SIM_PORT)
                 send_assoc_resp(hapd, NULL, mac, status_code, 0, NULL, 0, rssi, 1);
 #else
                 send_assoc_resp(hapd, NULL, mac, status_code, 0, NULL, 0, rssi, 1, false);
@@ -11851,7 +11872,7 @@ int wifi_send_response_failure(int ap_index, const u8 *mac, int frame_type, int 
 #if !defined(PLATFORM_LINUX)
 #ifdef HOSTAPD_2_11 //2.11
                 /* setting allow_mld_addr_trans to false */
-#if defined(BANANA_PI_PORT) && defined(KERNEL_6_6)
+#if (defined(BANANA_PI_PORT) && defined(KERNEL_6_6)) || defined(DOCKER_SIM_PORT)
                 send_assoc_resp(hapd, NULL, mac, status_code, 1, NULL, 0, rssi, 1);
 #else
                 send_assoc_resp(hapd, NULL, mac, status_code, 1, NULL, 0, rssi, 1, false);
@@ -11902,7 +11923,7 @@ void wifi_send_wpa_supplicant_event(int ap_index, uint8_t *frame, int len)
     pthread_mutex_unlock(&g_wifi_hal.hapd_lock);
 }
 
-#if defined(BANANA_PI_PORT) && defined(KERNEL_6_6)
+#if (defined(BANANA_PI_PORT) && defined(KERNEL_6_6)) || defined(DOCKER_SIM_PORT)
 int wifi_drv_sta_disassoc(void *priv, const u8 *own_addr, const u8 *addr, u16 reason, int link_id)
 #else
 int wifi_drv_sta_disassoc(void *priv, const u8 *own_addr, const u8 *addr, u16 reason)
@@ -12039,7 +12060,7 @@ int wifi_drv_sta_deauth(void *priv, const u8 *own_addr, const u8 *addr, u16 reas
           HOSTAPD_MODE_IEEE80211AD) {
         /* Deauthentication is not used in DMG/IEEE 802.11ad;
            * disassociate the STA instead. */
-#if defined(BANANA_PI_PORT) && defined(KERNEL_6_6)
+#if (defined(BANANA_PI_PORT) && defined(KERNEL_6_6)) || defined(DOCKER_SIM_PORT)
 #if HOSTAPD_VERSION >= 211 && defined(CONFIG_GENERIC_MLO)
         int link_id = wifi_hal_get_mld_link_id(interface);
 #else
@@ -12442,8 +12463,8 @@ fail:
     return -ENOBUFS;
 }
 
-#ifdef BANANA_PI_PORT
-#if defined(KERNEL_6_6)
+#if defined(BANANA_PI_PORT) || defined(DOCKER_SIM_PORT)
+#if defined(KERNEL_6_6) || defined(DOCKER_SIM_PORT)
 int wifi_drv_set_wds_sta(void *priv, const u8 *addr, int aid, int val, const char *bridge_ifname,
     const char *ifname_wds, u32 radio_mask)
 #else
@@ -14124,7 +14145,7 @@ int wifi_drv_if_remove(void *priv, enum wpa_driver_if_type type, const char *ifn
     return 0;
 }
 
-#ifdef BANANA_PI_PORT
+#if defined(BANANA_PI_PORT) || defined(DOCKER_SIM_PORT)
 static int wifi_drv_if_add(void *priv, enum wpa_driver_if_type type, const char *ifname,
     const u8 *addr, void *bss_ctx, void **drv_priv, char *force_ifname, u8 *if_addr,
     const char *bridge, int use_existing, int setup_ap, int freq, u32 radio_mask)
@@ -15815,7 +15836,7 @@ int     wifi_drv_send_eapol(void *priv, const u8 *addr, const u8 *data,
     return 0;
 }
 
-#if defined(BANANA_PI_PORT) && defined(KERNEL_6_6)
+#if (defined(BANANA_PI_PORT) && defined(KERNEL_6_6)) || defined(DOCKER_SIM_PORT)
 static void * wifi_driver_nl80211_init(void *ctx, const char *ifname,
 		                       void *global_priv, enum wpa_p2p_mode p2p_mode)
 #else

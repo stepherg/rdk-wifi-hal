@@ -399,7 +399,7 @@ INT wifi_hal_setApWpsPin(INT ap_index, char *wps_pin)
 
 INT wifi_hal_init()
 {
-#ifndef CONFIG_WIFI_EMULATOR
+#if !defined(CONFIG_WIFI_EMULATOR) && !defined(DOCKER_SIM_PORT)
     unsigned int i;
     wifi_radio_info_t *radio;
     platform_get_radio_caps_t get_radio_caps_fn;
@@ -439,7 +439,8 @@ INT wifi_hal_init()
     if (init_nl80211() != 0) {
         return RETURN_ERR;
     }
-#ifndef CONFIG_WIFI_EMULATOR
+
+#if !defined(CONFIG_WIFI_EMULATOR) && !defined(DOCKER_SIM_PORT)
     if (create_ecomode_interfaces() != 0) {
         wifi_hal_error_print("%s:%d: Failed to create the ECO mode interfaces\n", __func__, __LINE__);
     }
@@ -480,7 +481,7 @@ INT wifi_hal_init()
     if(attrp != NULL) {
         pthread_attr_destroy(attrp);
     }
-#ifndef CONFIG_WIFI_EMULATOR
+#if !defined(CONFIG_WIFI_EMULATOR) && !defined(DOCKER_SIM_PORT)
     if (eap_server_register_methods() != 0) {
         wifi_hal_error_print("%s:%d: failing to register eap server default methods\n", __func__, __LINE__);
         close(g_wifi_hal.nl_event_fd);
@@ -1752,7 +1753,7 @@ INT wifi_hal_kickAssociatedDevice(INT ap_index, mac_address_t mac)
     if (memcmp(mac, bcastmac, sizeof(mac_address_t)) == 0) {
         tmp = hapd->sta_list;
         while(tmp) {
-#if defined(BANANA_PI_PORT) && defined(KERNEL_6_6)
+#if (defined(BANANA_PI_PORT) && defined(KERNEL_6_6)) || defined(DOCKER_SIM_PORT)
 #if HOSTAPD_VERSION >= 211 && defined(CONFIG_GENERIC_MLO)
             int link_id = wifi_hal_get_mld_link_id(interface);
 #else
@@ -1769,7 +1770,7 @@ INT wifi_hal_kickAssociatedDevice(INT ap_index, mac_address_t mac)
     else {
         pthread_mutex_unlock(&g_wifi_hal.hapd_lock);
         wifi_hal_info_print("%s:%d:mac is not a broadcast mac address\n", __func__, __LINE__);
-#if defined(BANANA_PI_PORT) && defined(KERNEL_6_6)
+#if (defined(BANANA_PI_PORT) && defined(KERNEL_6_6)) || defined(DOCKER_SIM_PORT)
 #if HOSTAPD_VERSION >= 211 && defined(CONFIG_GENERIC_MLO)
         int link_id = wifi_hal_get_mld_link_id(interface);
 #else
@@ -4555,7 +4556,7 @@ void wifi_hal_disassoc(int vap_index, int status, uint8_t *mac)
     memcpy(own_addr, hapd->own_addr, ETH_ALEN);
     pthread_mutex_unlock(&g_wifi_hal.hapd_lock);
 
-#if defined(BANANA_PI_PORT) && defined(KERNEL_6_6)
+#if (defined(BANANA_PI_PORT) && defined(KERNEL_6_6)) || defined(DOCKER_SIM_PORT)
 #if HOSTAPD_VERSION >= 211 && defined(CONFIG_GENERIC_MLO)
     int link_id = wifi_hal_get_mld_link_id(interface);
 #else
