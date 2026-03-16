@@ -31,17 +31,17 @@ ACLOCAL_AMFLAGS = -I m4
 hardware_platform = i686-linux-gnu
 
 if WIFI_EMULATOR
-lib_LTLIBRARIES = librdk_wifiemulatorhal.la
-librdk_wifiemulatorhal_la_CPPFLAGS = -I$(top_srcdir)/./include $(CPPFLAGS) -I$(top_srcdir)/../util_crypto -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/libnl3 -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/ -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/src/ -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/src/utils/ -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/src/ap/ -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/src/drivers/ -I$(top_srcdir)/../util
-librdk_wifiemulatorhal_la_CFLAGS = -Wall -Werror -Wextra -Wno-unused-parameter -Wno-pointer-sign -Wno-sign-compare -Wno-type-limits -Wno-format-truncation -Wno-poison-system-directories -Wno-discarded-qualifiers
-librdk_wifiemulatorhal_la_SOURCES = wifi_hal_rx_test.c wifi_hal_data_rx.c wifi_hal_dpp.c wifi_hal_anqp.c wifi_hal_frame_test.c ../util_crypto/aes_siv.c wifi_tlv.c wifi_hal_rdk_util.c
-librdk_wifiemulatorhal_la_LDFLAGS = -lm -lcjson -lssl -lcrypto
+lib_LTLIBRARIES = librdk_wifihal.la
+librdk_wifihal_la_CPPFLAGS = -I$(top_srcdir)/./include $(CPPFLAGS) -I$(top_srcdir)/../util_crypto -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/libnl3 -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/ -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/src/ -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/src/utils/ -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/src/ap/ -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/src/drivers/ -I$(top_srcdir)/../util
+librdk_wifihal_la_CFLAGS = -Wall -Werror -Wextra -Wno-unused-parameter -Wno-pointer-sign -Wno-sign-compare -Wno-type-limits -Wno-format-truncation -Wno-poison-system-directories -Wno-discarded-qualifiers
+librdk_wifihal_la_SOURCES = wifi_hal_rx_test.c wifi_hal_data_rx.c wifi_hal_dpp.c wifi_hal_anqp.c wifi_hal_frame_test.c ../util_crypto/aes_siv.c wifi_tlv.c wifi_hal_rdk_util.c
+librdk_wifihal_la_LDFLAGS = -lm -lcjson -lssl -lcrypto
 
-librdk_wifiemulatorhal_la_LDFLAGS += -lhostap -lnl-3 -lnl-genl-3 -lnl-route-3
-librdk_wifiemulatorhal_la_SOURCES += wifi_hal.c wifi_hal_hostapd.c wifi_hal_nl80211.c wifi_hal_nl80211_events.c wifi_hal_nl80211_utils.c collection.c wifi_hal_mgmt_rx_one_wifi.c
+librdk_wifihal_la_LDFLAGS += -lhostap -lnl-3 -lnl-genl-3 -lnl-route-3
+librdk_wifihal_la_SOURCES += wifi_hal.c wifi_hal_hostapd.c wifi_hal_nl80211.c wifi_hal_nl80211_events.c wifi_hal_nl80211_utils.c collection.c wifi_hal_mgmt_rx_one_wifi.c
 
-librdk_wifiemulatorhal_la_CPPFLAGS += -I$(top_srcdir)/../platform/wifi-emulator
-librdk_wifiemulatorhal_la_SOURCES += ../platform/wifi-emulator/platform_emulator.c
+librdk_wifihal_la_CPPFLAGS += -I$(top_srcdir)/../platform/wifi-emulator
+librdk_wifihal_la_SOURCES += ../platform/wifi-emulator/platform_emulator.c
 
 else
 lib_LTLIBRARIES = librdk_wifihal.la
@@ -137,6 +137,13 @@ endif
 if BANANA_PI_PORT
 librdk_wifihal_la_CPPFLAGS += -I$(top_srcdir)/../platform/banana-pi -I${PKG_CONFIG_SYSROOT_DIR}${includedir}/rdk-wifi-libhostap/wpa_supplicant
 librdk_wifihal_la_SOURCES += ../platform/banana-pi/platform.c
+endif
+
+if DOCKER_SIM_PORT
+librdk_wifihal_la_CPPFLAGS += -I$(top_srcdir)/../platform/docker-sim
+librdk_wifihal_la_CPPFLAGS += -DDOCKER_SIM_PORT
+librdk_wifihal_la_CFLAGS += -Wno-unused-function
+librdk_wifihal_la_SOURCES += ../platform/docker-sim/platform.c wifi_hal_radio_sim.c wifi_hal_legacy_stubs.c
 endif
 
 include_HEADERS = wifi_hal_rdk.h wifi_hal_rdk_framework.h ieee80211.h ../util_crypto/aes_siv.h 

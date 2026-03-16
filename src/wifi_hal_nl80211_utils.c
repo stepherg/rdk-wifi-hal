@@ -385,6 +385,17 @@ static const wifi_interface_name_idex_map_t static_interface_index_map[] = {
     {0, 2,  "wl2.7",  "", "brlan114", 114,   22,     "mesh_backhaul_6g"},
     {0, 2,  "wl2",    "", "",         0,     23,     "mesh_sta_6g"},
 #endif /* SCXF10_PORT */
+#ifdef DOCKER_SIM_PORT
+    {0, 0,  "wlan0",    "",  "brlan0",  100,   0,   "private_ssid_2g"},
+    {1, 1,  "wlan1",    "",  "brlan0",  100,   1,   "private_ssid_5g"},
+    {2, 2,  "wlan2",    "",  "brlan0",  100,   2,   "private_ssid_6g"},
+    {0, 0,  "wlan0bh",  "",  "brlan2",    0,   6,   "mesh_backhaul_2g"},
+    {1, 1,  "wlan1bh",  "",  "brlan2",    0,   7,   "mesh_backhaul_5g"},
+    {2, 2,  "wlan2bh",  "",  "brlan2",    0,   8,   "mesh_backhaul_6g"},
+    {0, 0,  "wlan0sta", "",  "",          0,   9,   "mesh_sta_2g"},
+    {1, 1,  "wlan1sta", "",  "",          0,   10,  "mesh_sta_5g"},
+    {2, 2,  "wlan2sta", "",  "",          0,   11,  "mesh_sta_6g"},
+#endif /* DOCKER_SIM_PORT */
     // for Intel based platforms
 };
 #endif
@@ -456,6 +467,12 @@ static const radio_interface_mapping_t static_radio_interface_map[] = {
     { 0, 2, "radio3", "wl2"},
 #endif
 #endif
+
+#ifdef DOCKER_SIM_PORT
+    {0, 0, "radio1", "wlan0"},
+    {1, 1, "radio2", "wlan1"},
+    {2, 2, "radio3", "wlan2"},
+#endif /* DOCKER_SIM_PORT */
 };
 #endif
 
@@ -938,6 +955,40 @@ const wifi_driver_info_t  driver_info = {
     platform_get_radio_caps,
     platform_get_reg_domain,
 #endif
+
+#ifdef DOCKER_SIM_PORT
+    "docker-sim",
+    "docker_sim",
+    {"Docker Simulated WAP","Docker","SIM","SIM","Docker Sim","http://localhost","000","WPS Access Point","http://localhost"},
+    platform_pre_init,
+    platform_post_init,
+    platform_set_radio,
+    platform_set_radio_pre_init,
+    platform_pre_create_vap,
+    platform_create_vap,
+    platform_get_ssid_default,
+    platform_get_keypassphrase_default,
+    platform_get_radius_key_default,
+    platform_get_wps_pin_default,
+    platform_get_country_code_default,
+    platform_wps_event,
+    platform_flags_init,
+    platform_get_aid,
+    platform_free_aid,
+    platform_sync_done,
+    platform_update_radio_presence,
+    platform_set_txpower,
+    platform_set_offload_mode,
+    platform_get_acl_num,
+    platform_get_chanspec_list,
+    platform_set_acs_exclusion_list,
+    platform_get_vendor_oui,
+    platform_set_neighbor_report,
+    platform_get_radio_phytemperature,
+    platform_set_dfs,
+    platform_get_radio_caps,
+    platform_get_reg_domain,
+#endif /* DOCKER_SIM_PORT */
     
 };
 
@@ -1678,6 +1729,21 @@ int is_backhaul_interface(wifi_interface_info_t *interface)
 
 unsigned int get_band_info_from_rdk_radio_index(unsigned int rdk_radio_index)
 {
+#ifdef DOCKER_SIM_PORT
+    /* interface_index_map is NULL in CONFIG_WIFI_EMULATOR mode; return the
+     * band directly from the sim_radio_band[] layout:
+     *   radio 0 → 2.4 GHz, radio 1 → 5 GHz, radio 2 → 6 GHz */
+    switch (rdk_radio_index) {
+    case 0: return WIFI_FREQUENCY_2_4_BAND;
+    case 1: return WIFI_FREQUENCY_5_BAND;
+    case 2: return WIFI_FREQUENCY_6_BAND;
+    default:
+        wifi_hal_error_print("%s:%d: unexpected rdk_radio_index %u\n",
+                             __func__, __LINE__, rdk_radio_index);
+        return 0;
+    }
+#endif /* DOCKER_SIM_PORT */
+
     unsigned int i;
     const char *vap_name = NULL;
 
@@ -3916,6 +3982,9 @@ platform_get_RegDomain_t get_platform_get_RegDomain_fn()
 
 bool lsmod_by_name(const char *name)
 {
+#ifdef DOCKER_SIM_PORT
+    return true;
+#else
     FILE *fp = NULL;
     char line[4096];
 
@@ -3933,6 +4002,7 @@ bool lsmod_by_name(const char *name)
     fclose(fp);
 
     return false;
+#endif
 }
 
 void update_ecomode_radio_capabilities(wifi_radio_info_t *radio)
