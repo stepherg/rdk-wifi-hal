@@ -4852,7 +4852,7 @@ static unsigned int get_akm_suites_info(struct nlattr *tb)
         case RSN_AUTH_KEY_MGMT_CCKM:
             key_mgmt |= WPA_DRIVER_CAPA_KEY_MGMT_CCKM;
             break;
-#if !defined(KERNEL_6_6)
+#if !defined(KERNEL_6_6) && !defined(DOCKER_SIM_PORT)
         case RSN_AUTH_KEY_MGMT_OSEN:
             key_mgmt |= WPA_DRIVER_CAPA_KEY_MGMT_OSEN;
             break;
@@ -11936,7 +11936,7 @@ int wifi_drv_sta_disassoc(void *priv, const u8 *own_addr, const u8 *addr, u16 re
     wifi_driver_data_t *drv;
     struct ieee80211_mgmt mgmt;
 #if HOSTAPD_VERSION >= 211
-#if !defined(KERNEL_6_6)
+#if !defined(KERNEL_6_6) && !defined(DOCKER_SIM_PORT)
     int link_id = -1;
 #endif
 #endif // HOSTAPD_VERSION >= 211
