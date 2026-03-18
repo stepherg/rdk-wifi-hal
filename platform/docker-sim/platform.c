@@ -283,3 +283,18 @@ int nvram_get_mgmt_frame_power_control(int vap_index, int* output_dbm) {
    wifi_hal_dbg_print("%s:%d \n", __func__, __LINE__);
    return 0;
 }
+
+UINT wifi_freq_to_op_class(UINT freq) {
+#if 0   
+   u8 op_class, channel;
+
+   if (ieee80211_freq_to_channel_ext(freq, 0, 0, &op_class, &channel) == NUM_HOSTAPD_MODES) {
+      wifi_hal_error_print("%s:%d Failed to get op class for freq : %d\n", __func__, __LINE__, freq);
+      return RETURN_ERR;
+   }
+
+   return op_class;
+#else
+   return 0;
+#endif
+}
