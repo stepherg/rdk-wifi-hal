@@ -166,7 +166,7 @@ INT wifi_hal_getHalCapability(wifi_hal_capability_t *hal)
 #if !defined(_PLATFORM_RASPBERRYPI_)
     /* Copy device manufacturer,model,serial no and software version to here */
     memset(output, '\0', sizeof(output));
-#if defined (_PLATFORM_BANANAPI_R4_)
+#if defined (_PLATFORM_BANANAPI_R4_) || defined(DOCKER_SIM_PORT)
     _syscmd("cat /etc/machine-id", output, sizeof(output));
     if (strlen(output) == 0) {
         strncpy(output, "bpi-123", sizeof(output));
@@ -211,7 +211,7 @@ INT wifi_hal_getHalCapability(wifi_hal_capability_t *hal)
 
     // CM mac
     memset(output, '\0', sizeof(output));
-#if defined (_PLATFORM_BANANAPI_R4_)
+#if defined (_PLATFORM_BANANAPI_R4_) || defined(DOCKER_SIM_PORT)
     if (get_mac_address("erouter0", hal->wifi_prop.cm_mac) != RETURN_OK) {
        if (get_mac_address("eth0", hal->wifi_prop.cm_mac) != RETURN_OK) {
             wifi_hal_error_print("%s:%d: Unable to get CM mac address\n", __func__, __LINE__);
@@ -229,7 +229,7 @@ INT wifi_hal_getHalCapability(wifi_hal_capability_t *hal)
 
 
     memset(output, '\0', sizeof(output));
-#if defined (_PLATFORM_BANANAPI_R4_)
+#if defined (_PLATFORM_BANANAPI_R4_) || defined(DOCKER_SIM_PORT)
     if (get_mac_address("erouter0", hal->wifi_prop.al_1905_mac) != RETURN_OK) {
        if (get_mac_address("eth0", hal->wifi_prop.al_1905_mac) != RETURN_OK) {
             wifi_hal_error_print("%s:%d: Unable to get AL mac address\n", __func__, __LINE__);
@@ -1815,6 +1815,11 @@ INT wifi_hal_getRadioVapInfoMap(wifi_radio_index_t index, wifi_vap_info_map_t *m
         // therefore check for interface vap_index
         // and don't add radio interfaces to vap map
         if ((int)interface->vap_info.vap_index >= 0){
+            if (itr >= MAX_NUM_VAP_PER_RADIO) {
+                wifi_hal_error_print("%s:%d: vap count exceeds MAX_NUM_VAP_PER_RADIO (%d) for radio index:%d\n",
+                    __func__, __LINE__, MAX_NUM_VAP_PER_RADIO, index);
+                break;
+            }
             memcpy(&map->vap_array[itr], &interface->vap_info, sizeof(wifi_vap_info_t));
             if (strncmp((char *)map->vap_array[itr].vap_name, "sim_sta", strlen("sim_sta")) == 0) {
                 memcpy(map->vap_array[itr].u.sta_info.mac, interface->mac, sizeof(map->vap_array[itr].u.sta_info.mac));

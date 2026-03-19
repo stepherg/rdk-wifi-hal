@@ -8052,6 +8052,9 @@ int wifi_hal_configure_sta_4addr_to_bridge(wifi_interface_info_t *interface, int
 
 int nl80211_update_interface(wifi_interface_info_t *interface)
 {
+#ifdef DOCKER_SIM_PORT
+    return 0;
+#else
     struct nl_msg *msg;
     int ret;
     wifi_vap_info_t *vap;
@@ -8116,6 +8119,7 @@ int nl80211_update_interface(wifi_interface_info_t *interface)
             (vap->vap_mode == wifi_vap_mode_ap) ? "NL80211_IFTYPE_AP":"NL80211_IFTYPE_STATION");
 
     return 0;
+#endif /* !DOCKER_SIM_PORT */
 }
 
 int nl80211_create_interface(wifi_radio_info_t *radio, wifi_vap_info_t *vap, wifi_interface_info_t **interface)
