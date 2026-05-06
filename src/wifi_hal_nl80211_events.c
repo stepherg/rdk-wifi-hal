@@ -1731,7 +1731,7 @@ int process_global_nl80211_event(struct nl_msg *msg, void *arg)
         gnlh->cmd == NL80211_CMD_SCAN_ABORTED)
     {
         /* Special case for SCAN events - don't drop these event even if the interface is not fully configured */
-        interface = get_interface_by_if_index(ifidx);
+        interface = get_interface_by_if_index(ifidx, NL80211_DRV_LINK_ID_NA);
         if (interface) {
             do_process_drv_event(interface, gnlh->cmd, tb);
             return NL_SKIP;
@@ -1742,7 +1742,7 @@ int process_global_nl80211_event(struct nl_msg *msg, void *arg)
     if(gnlh->cmd == NL80211_CMD_RADAR_DETECT) {
         event_type = nla_get_u32(tb[NL80211_ATTR_RADAR_EVENT]);
         if( event_type == NL80211_RADAR_CAC_FINISHED || event_type == NL80211_RADAR_CAC_ABORTED ) {
-            interface = get_interface_by_if_index(ifidx);
+            interface = get_interface_by_if_index(ifidx, NL80211_DRV_LINK_ID_NA);
             if(interface) {
                 do_process_drv_event(interface, gnlh->cmd, tb);
                 return NL_SKIP;

@@ -191,7 +191,7 @@ int platform_get_acl_num(int vap_index, unsigned int* acl_count) {
 }
 
 int platform_get_chanspec_list(unsigned int radioIndex, wifi_channelBandwidth_t bandwidth,
-   wifi_channels_list_t channels, char* buff) {
+   const wifi_channels_list_t* channels, char* buff) {
    (void)radioIndex;
    (void)bandwidth;
    (void)channels;
@@ -298,3 +298,7 @@ UINT wifi_freq_to_op_class(UINT freq) {
    return 0;
 #endif
 }
+INT wifi_pushApRoamingConsortiumElement(INT apIndex, wifi_roamingConsortiumElement_t* infoElement) {
+   return RETURN_ERR;
+}
+

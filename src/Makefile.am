@@ -52,7 +52,7 @@ librdk_wifihal_la_LDFLAGS = -lm -lcjson -lssl -lcrypto
 
 if ONE_WIFIBUILD
 librdk_wifihal_la_LDFLAGS += -lhostap -lnl-3 -lnl-genl-3 -lnl-route-3
-librdk_wifihal_la_SOURCES += wifi_hal.c wifi_hal_hostapd.c wifi_hal_nl80211.c wifi_hal_nl80211_events.c wifi_hal_nl80211_utils.c collection.c wifi_hal_mgmt_rx_one_wifi.c wifi_hal_wnm_rrm.c
+librdk_wifihal_la_SOURCES += wifi_hal.c wifi_hal_hostapd.c wifi_hal_nl80211.c wifi_hal_nl80211_events.c wifi_hal_nl80211_utils.c collection.c wifi_hal_mgmt_rx_one_wifi.c wifi_hal_wnm_rrm.c wifi_hal_radio_sim.c wifi_hal_legacy_stubs.c
 else
 librdk_wifihal_la_SOURCES += wifi_hal_mgmt_rx.c
 endif
@@ -143,7 +143,7 @@ if DOCKER_SIM_PORT
 librdk_wifihal_la_CPPFLAGS += -I$(top_srcdir)/../platform/docker-sim
 librdk_wifihal_la_CPPFLAGS += -DDOCKER_SIM_PORT
 librdk_wifihal_la_CFLAGS += -Wno-unused-function
-librdk_wifihal_la_SOURCES += ../platform/docker-sim/platform.c wifi_hal_radio_sim.c wifi_hal_legacy_stubs.c
+librdk_wifihal_la_SOURCES += ../platform/docker-sim/platform.c
 endif
 
 include_HEADERS = wifi_hal_rdk.h wifi_hal_rdk_framework.h ieee80211.h ../util_crypto/aes_siv.h 

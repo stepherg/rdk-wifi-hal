@@ -1,4 +1,10 @@
 install/
 *.o
 *.so
+*.lo
+*.la
+.libs/
+.deps/
+autom4te.cache/
+m4/
 .vscode/

@@ -9487,7 +9487,8 @@ int nl80211_connect_sta(wifi_interface_info_t *interface)
         }
     }
 
-    if ((ret = configure_nl80211_security(msg, security, &wpa_conf)) < 0) {
+    if ((ret = configure_nl80211_security(msg, security, &wpa_conf,
+            &interface->vap_info)) < 0) {
         wifi_hal_error_print("%s:%d: Failed to configure security: %d\n",
                       __func__, __LINE__, ret);
         nlmsg_free(msg);
@@ -15840,7 +15841,7 @@ int     wifi_drv_send_eapol(void *priv, const u8 *addr, const u8 *data,
     return 0;
 }
 
-#if (defined(BANANA_PI_PORT) && defined(KERNEL_6_6)) || defined(DOCKER_SIM_PORT)
+#if HOSTAPD_VERSION >= 211 && ((defined(BANANA_PI_PORT) && defined(KERNEL_6_6)) || defined(DOCKER_SIM_PORT))
 static void * wifi_driver_nl80211_init(void *ctx, const char *ifname,
 		                       void *global_priv, enum wpa_p2p_mode p2p_mode)
 #else
@@ -15898,7 +15899,7 @@ int     wifi_sta_deauth(void *priv, const u8 *own_addr, const u8 *addr, int reas
     return 0;
 }
 
-int    wifi_drv_send_radius_eap_failure(void *priv, int failure_code)
+int    wifi_drv_send_radius_eap_failure(void *priv, const u8 *addr, int failure_code)
 {
     wifi_interface_info_t *interface;
     wifi_vap_info_t *vap;
@@ -15917,7 +15918,7 @@ int    wifi_drv_send_radius_eap_failure(void *priv, int failure_code)
 
     for (int i = 0; i < callbacks->num_radius_eap_cbs; i++) {
         if (callbacks->radius_eap_cb[i] != NULL) {
-            callbacks->radius_eap_cb[i](vap->vap_index, failure_code);
+            callbacks->radius_eap_cb[i](vap->vap_index, (unsigned char *) addr, failure_code);
         }
     }
     return 0;
@@ -16985,13 +16986,14 @@ int wifi_drv_set_acs_exclusion_list(unsigned int radioIndex, char* str)
     }
 }
 
-int wifi_drv_get_chspc_configs(unsigned int radioIndex, wifi_channelBandwidth_t bandwidth, wifi_channels_list_t chanlist, char* buff)
+int wifi_drv_get_chspc_configs(unsigned int radioIndex, wifi_channelBandwidth_t bandwidth,
+    const wifi_channels_list_t *channels, char* buff)
 {
     wifi_hal_dbg_print("%s:%d Enter\n",__func__,__LINE__);
     platform_get_chanspec_list_t platform_get_chanspec_list_fn = get_platform_chanspec_list_fn();
     if(platform_get_chanspec_list_fn != NULL)
     {
-        return platform_get_chanspec_list_fn(radioIndex,bandwidth,chanlist,buff);
+        return platform_get_chanspec_list_fn(radioIndex, bandwidth, channels, buff);
     } else {
         return 0;
     }

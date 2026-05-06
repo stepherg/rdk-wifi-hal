@@ -59,11 +59,10 @@ extern int  get_mac_address(char *intf_name, mac_address_t mac);
 static const struct {
     enum nl80211_band   nl_band;
     enum hostapd_hw_mode hw_mode;
-    bool                is_6ghz;
 } sim_radio_band[3] = {
-    { NL80211_BAND_2GHZ, HOSTAPD_MODE_IEEE80211G, false },
-    { NL80211_BAND_5GHZ, HOSTAPD_MODE_IEEE80211A, false },
-    { NL80211_BAND_6GHZ, HOSTAPD_MODE_IEEE80211A, true  },
+    { NL80211_BAND_2GHZ, HOSTAPD_MODE_IEEE80211G },
+    { NL80211_BAND_5GHZ, HOSTAPD_MODE_IEEE80211A },
+    { NL80211_BAND_6GHZ, HOSTAPD_MODE_IEEE80211A },
 };
 
 /*
@@ -97,7 +96,6 @@ static void sim_populate_band(wifi_radio_info_t *radio, enum nl80211_band band,
     }
 
     mode->mode        = sim_radio_band[radio->rdk_radio_index].hw_mode;
-    mode->is_6ghz     = sim_radio_band[radio->rdk_radio_index].is_6ghz;
     mode->num_channels = (int)n_chans;
     mode->channels    = radio->channel_data[band]; /* point into inline array */
 

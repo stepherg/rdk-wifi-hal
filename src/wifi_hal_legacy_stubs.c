@@ -93,6 +93,89 @@ INT wifi_getApInterworkingElement(INT apIndex, wifi_InterworkingElement_t *outpu
     return RETURN_OK;
 }
 
+INT wifi_getCountryIe(INT apIndex, BOOL *enabled)
+{
+    (void)apIndex;
+    if (enabled) *enabled = FALSE;
+    return RETURN_OK;
+}
+
+INT wifi_getLayer2TrafficInspectionFiltering(INT apIndex, BOOL *enabled)
+{
+    (void)apIndex;
+    if (enabled) *enabled = FALSE;
+    return RETURN_OK;
+}
+
+INT wifi_getDownStreamGroupAddress(INT apIndex, BOOL *disabled)
+{
+    (void)apIndex;
+    if (disabled) *disabled = FALSE;
+    return RETURN_OK;
+}
+
+INT wifi_getBssLoad(INT apIndex, BOOL *enabled)
+{
+    (void)apIndex;
+    if (enabled) *enabled = FALSE;
+    return RETURN_OK;
+}
+
+INT wifi_getProxyArp(INT apIndex, BOOL *enabled)
+{
+    (void)apIndex;
+    if (enabled) *enabled = FALSE;
+    return RETURN_OK;
+}
+
+INT wifi_setCountryIe(INT apIndex, BOOL enabled)
+{
+    (void)apIndex; (void)enabled;
+    return RETURN_OK;
+}
+
+INT wifi_setProxyArp(INT apIndex, BOOL enabled)
+{
+    (void)apIndex; (void)enabled;
+    return RETURN_OK;
+}
+
+INT wifi_setLayer2TrafficInspectionFiltering(INT apIndex, BOOL enabled)
+{
+    (void)apIndex; (void)enabled;
+    return RETURN_OK;
+}
+
+INT wifi_setDownStreamGroupAddress(INT apIndex, BOOL disabled)
+{
+    (void)apIndex; (void)disabled;
+    return RETURN_OK;
+}
+
+INT wifi_setBssLoad(INT apIndex, BOOL enabled)
+{
+    (void)apIndex; (void)enabled;
+    return RETURN_OK;
+}
+
+INT wifi_setP2PCrossConnect(INT apIndex, BOOL disabled)
+{
+    (void)apIndex; (void)disabled;
+    return RETURN_OK;
+}
+
+INT wifi_pushApHotspotElement(INT apIndex, BOOL enabled)
+{
+    (void)apIndex; (void)enabled;
+    return RETURN_OK;
+}
+
+INT wifi_applyGASConfiguration(wifi_GASConfiguration_t *input_struct)
+{
+    (void)input_struct;
+    return RETURN_OK;
+}
+
 INT wifi_enableCSIEngine(INT apIndex, mac_address_t sta, BOOL enable)
 {
     (void)apIndex; (void)sta; (void)enable;
