@@ -609,7 +609,7 @@ static void nl80211_frame_tx_status_event(wifi_interface_info_t *interface, stru
                 event.tx_status.data_len, mgmt_type, dir, sig_dbm, phy_rate, 0);
 #else
             callbacks->mgmt_frame_rx_callback(vap->vap_index, sta, (unsigned char *)event.tx_status.data,
-                event.tx_status.data_len, mgmt_type, dir, 0);
+                event.tx_status.data_len, mgmt_type, dir, sig_dbm, 0, 0);
 #endif
 #endif
         }
