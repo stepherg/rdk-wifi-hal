@@ -1096,6 +1096,7 @@ int wifi_hal_purgeScanResult(unsigned int vap_index, unsigned char *sta_mac);
 void get_wifi_interface_info_map(wifi_interface_name_idex_map_t *interface_map);
 void get_radio_interface_info_map(radio_interface_mapping_t *radio_interface_map);
 unsigned int get_sizeof_interfaces_index_map(void);
+unsigned int get_sizeof_radio_interfaces_map(void);
 u32 get_wpa_version(wifi_security_modes_t mode);
 bool is_wpa3_192bit_mode(const struct wpa_auth_config *wpa_conf);
 void get_cipher_suites(wifi_security_modes_t mode, wifi_encryption_method_t encr,

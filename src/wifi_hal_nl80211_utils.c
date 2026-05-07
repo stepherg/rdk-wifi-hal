@@ -386,29 +386,58 @@ static wifi_interface_name_idex_map_t static_interface_index_map[] = {
     {0, 2,  "wl2",    "", "",         0,     23,     "mesh_sta_6g"},
 #endif /* SCXF10_PORT */
 #ifdef DOCKER_SIM_PORT
+   {1, 0,  "wl0.1",   "",  "brlan0",   100,   0,      "private_ssid_2g"},
+   {0, 1,  "wl1.1",   "",  "brlan0",   100,   1,      "private_ssid_5g"},
+   {1, 0,  "wl0.2",   "",  "brlan1",   101,   2,      "iot_ssid_2g"},
+   {0, 1,  "wl1.2",   "",  "brlan1",   101,   3,      "iot_ssid_5g"},
+   {1, 0,  "wl0.3",   "",  "brlan2",   102,   4,      "hotspot_open_2g"},
+   {0, 1,  "wl1.3",   "",  "brlan3",   103,   5,      "hotspot_open_5g"},
+   {1, 0,  "wl0.4",   "",  "br106",    106,   6,      "lnf_psk_2g"},
+   {0, 1,  "wl1.4",   "",  "br106",    106,   7,      "lnf_psk_5g"},
+   {1, 0,  "wl0.5",   "",  "brlan4",   104,   8,      "hotspot_secure_2g"},
+   {0, 1,  "wl1.5",   "",  "brlan5",   105,   9,      "hotspot_secure_5g"},
+   {1, 0,  "wl0.6",   "",  "br106",    106,   10,     "lnf_radius_2g"},
+   {0, 1,  "wl1.6",   "",  "br106",    106,   11,     "lnf_radius_5g"},
+   {1, 0,  "wl0.7",   "",  "brlan112", 112,   12,     "mesh_backhaul_2g"},
+   {0, 1,  "wl1.7",   "",  "brlan113", 113,   13,     "mesh_backhaul_5g"},
+   {1, 0,  "wl0",     "",  "",         0,     14,     "mesh_sta_2g"},
+   {0, 1,  "wl1",     "",  "",         0,     15,     "mesh_sta_5g"},
+   {2, 2,  "wl2.1",   "",  "brlan0",   100,   16,     "private_ssid_6g"},
+   {2, 2,  "wl2.2",   "",  "brlan1",   101,   17,     "iot_ssid_6g"},
+   {2, 2,  "wl2.3",   "",  "bropen6g", 2253,  18,     "hotspot_open_6g"},
+   {2, 2,  "wl2.4",   "",  "br106",    106,   19,     "lnf_psk_6g"},
+   {2, 2,  "wl2.5",   "",  "brsecure6g",2256, 20,     "hotspot_secure_6g"},
+#if 0
+   {2, 2,  "wl2.6",   "",  "br106",    106,   21,     "lnf_radius_6g"},
+#endif
+   {2, 2,  "wl2.7",   "",  "brlan114", 114,   22,     "mesh_backhaul_6g"},
+   {2, 2,  "wl2",     "",  "",         0,     23,     "mesh_sta_6g"},
+
+#if 0
    {0, 0,  "wl0.1",  "mld0",  "brlan0",      100,  0,      "private_ssid_2g"},
-   {2, 1,  "wl1.1",  "",   "brlan0",      100,  1,      "private_ssid_5g"},
+   {1, 1,  "wl1.1",  "",   "brlan0",      100,  1,      "private_ssid_5g"},
    {0, 0,  "wl0.2",  "",   "brlan1",      101,  2,      "iot_ssid_2g"},
-   {2, 1,  "wl1.2",  "",   "brlan1",      101,  3,      "iot_ssid_5g"},
+   {1, 1,  "wl1.2",  "",   "brlan1",      101,  3,      "iot_ssid_5g"},
    {0, 0,  "wl0.3",  "",   "brlan2",      102,  4,      "hotspot_open_2g"},
-   {2, 1,  "wl1.3",  "",   "brlan3",      103,  5,      "hotspot_open_5g"},
+   {1, 1,  "wl1.3",  "",   "brlan3",      103,  5,      "hotspot_open_5g"},
    {0, 0,  "wl0.4",  "",   "br106",       106,  6,      "lnf_psk_2g"},
-   {2, 1,  "wl1.4",  "",   "br106",       106,  7,      "lnf_psk_5g"},
+   {1, 1,  "wl1.4",  "",   "br106",       106,  7,      "lnf_psk_5g"},
    {0, 0,  "wl0.5",  "",   "brlan4",      104,  8,      "hotspot_secure_2g"},
-   {2, 1,  "wl1.5",  "",   "brlan5",      105,  9,      "hotspot_secure_5g"},
+   {1, 1,  "wl1.5",  "",   "brlan5",      105,  9,      "hotspot_secure_5g"},
    {0, 0,  "wl0.6",  "",   "br106",       106,  10,     "lnf_radius_2g"},
-   {2, 1,  "wl1.6",  "",   "br106",       106,  11,     "lnf_radius_5g"},
+   {1, 1,  "wl1.6",  "",   "br106",       106,  11,     "lnf_radius_5g"},
    {0, 0,  "wl0.7",  "",   "brlan112",    112,  12,     "mesh_backhaul_2g"},
-   {2, 1,  "wl1.7",  "",   "brlan113",    113,  13,     "mesh_backhaul_5g"},
+   {1, 1,  "wl1.7",  "",   "brlan113",    113,  13,     "mesh_backhaul_5g"},
    {0, 0,  "wl0",    "",   "",            0,    14,     "mesh_sta_2g"},
-   {2, 1,  "wl1",    "",   "",            0,    15,     "mesh_sta_5g"},
-   {1, 2,  "wl2.1",  "",   "brlan0",      100,  16,     "private_ssid_6g"},
-   {1, 2,  "wl2.2",  "",   "brlan1",      101,  17,     "iot_ssid_6g"},
-   {1, 2,  "wl2.3",  "",   "bropen6g",    2253, 18,     "hotspot_open_6g"},
-   {1, 2,  "wl2.5",  "",   "brsecure6g",  2256, 20,     "hotspot_secure_6g"},
-   {1, 2,  "wl2.7",  "",   "brlan114",    114,  22,     "mesh_backhaul_6g"},
-   {1, 2,  "wl2",    "",   "",            0,    23,     "mesh_sta_6g"},
+   {1, 1,  "wl1",    "",   "",            0,    15,     "mesh_sta_5g"},
+   {2, 2,  "wl2.1",  "",   "brlan0",      100,  16,     "private_ssid_6g"},
+   {2, 2,  "wl2.2",  "",   "brlan1",      101,  17,     "iot_ssid_6g"},
+   {2, 2,  "wl2.3",  "",   "bropen6g",    2253, 18,     "hotspot_open_6g"},
+   {2, 2,  "wl2.5",  "",   "brsecure6g",  2256, 20,     "hotspot_secure_6g"},
+   {2, 2,  "wl2.7",  "",   "brlan114",    114,  22,     "mesh_backhaul_6g"},
+   {2, 2,  "wl2",    "",   "",            0,    23,     "mesh_sta_6g"},
 #endif /* DOCKER_SIM_PORT */
+#endif
     // for Intel based platforms
 };
 #endif
@@ -482,9 +511,14 @@ static const radio_interface_mapping_t static_radio_interface_map[] = {
 #endif
 
 #ifdef DOCKER_SIM_PORT
+    { 1, 0, "radio1", "wl0"},
+    { 0, 1, "radio2", "wl1"},
+    { 2, 2, "radio3", "wl2"},
+#if 0
     {0, 0, "radio1", "wlan0"},
     {1, 1, "radio2", "wlan1"},
     {2, 2, "radio3", "wlan2"},
+#endif
 #endif /* DOCKER_SIM_PORT */
 };
 #endif
@@ -1587,7 +1621,7 @@ unsigned int get_sizeof_interfaces_index_map(void) {
 #endif
 }
 
-static unsigned int get_sizeof_radio_interfaces_map(void)
+unsigned int get_sizeof_radio_interfaces_map(void)
 {
 #ifdef CONFIG_WIFI_EMULATOR
     unsigned int count = 0;

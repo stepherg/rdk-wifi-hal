@@ -112,10 +112,24 @@ static void sim_populate_band(wifi_radio_info_t *radio, enum nl80211_band band,
 int populate_simulated_radios(void)
 {
     unsigned int n_iface;
-    radio_interface_mapping_t radio_map[MAX_NUM_RADIOS];
+    unsigned int radio_map_size;
+    radio_interface_mapping_t *radio_map;
     int r;
 
-    memset(radio_map, 0, sizeof(radio_map));
+    radio_map_size = get_sizeof_radio_interfaces_map();
+    if (radio_map_size < 3) {
+        wifi_hal_error_print("%s:%d: invalid radio map size %u\n", __func__, __LINE__,
+            radio_map_size);
+        return -1;
+    }
+
+    radio_map = calloc(radio_map_size, sizeof(*radio_map));
+    if (radio_map == NULL) {
+        wifi_hal_error_print("%s:%d: calloc failed for radio_map size %u\n", __func__, __LINE__,
+            radio_map_size);
+        return -1;
+    }
+
     get_radio_interface_info_map(radio_map);
 
     n_iface = get_sizeof_interfaces_index_map();
@@ -165,6 +179,7 @@ int populate_simulated_radios(void)
         if (radio->interface_map == NULL) {
             wifi_hal_error_print("%s:%d: hash_map_create failed for radio %d\n",
                 __func__, __LINE__, r);
+            free(radio_map);
             return -1;
         }
 
@@ -180,6 +195,7 @@ int populate_simulated_radios(void)
             if (iface == NULL) {
                 wifi_hal_error_print("%s:%d: calloc failed for interface %s\n",
                     __func__, __LINE__, iface_map[j].interface_name);
+                free(radio_map);
                 return -1;
             }
 
@@ -218,6 +234,8 @@ int populate_simulated_radios(void)
 
         g_wifi_hal.num_radios++;
     }
+
+    free(radio_map);
 
     wifi_hal_info_print("%s:%d: Populated %d simulated radios\n",
         __func__, __LINE__, g_wifi_hal.num_radios);
