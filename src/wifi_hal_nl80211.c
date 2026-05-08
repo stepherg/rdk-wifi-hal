@@ -179,8 +179,12 @@ void prepare_interface_fdset(wifi_hal_priv_t *priv)
 #endif
     
     FD_ZERO(&priv->drv_rfds);
-    FD_SET(priv->nl_event_fd, &priv->drv_rfds);
-    FD_SET(priv->link_fd, &priv->drv_rfds);
+    if (priv->nl_event_fd >= 0) {
+        FD_SET(priv->nl_event_fd, &priv->drv_rfds);
+    }
+    if (priv->link_fd >= 0) {
+        FD_SET(priv->link_fd, &priv->drv_rfds);
+    }
 
     for (i = 0; i < priv->num_radios; i++) {
         radio = &priv->radio_info[i];
@@ -3214,7 +3218,7 @@ void *nl_recv_func(void *arg)
         eloop_timeout_run();
         pthread_mutex_unlock(&g_wifi_hal.hapd_lock);
 
-        if (FD_ISSET(priv->nl_event_fd, &priv->drv_rfds)) {
+        if (priv->nl_event_fd >= 0 && FD_ISSET(priv->nl_event_fd, &priv->drv_rfds)) {
             res = nl_recvmsgs((struct nl_sock *)priv->nl_event, priv->nl_cb);
             if (res < 0) {
                 wifi_hal_error_print("%s:%d: sock:%d nl_recvmsgs failed:%d (%s), errno:%d (%s)\n",
@@ -3267,7 +3271,7 @@ void *nl_recv_func(void *arg)
             recv_data_frame(interface);
         }
 #endif
-        if (FD_ISSET(priv->link_fd, &priv->drv_rfds)) {
+        if (priv->link_fd >= 0 && FD_ISSET(priv->link_fd, &priv->drv_rfds)) {
             recv_link_status();
         }
 
@@ -6794,16 +6798,24 @@ static int map_rdk_radios_and_indexes(void)
 
 int init_nl80211()
 {
-    int ret;
 #ifndef DOCKER_SIM_PORT
+    int ret;
     u32 feat;
     unsigned int i;
     struct nl_msg* msg;
     wifi_radio_info_t *radio;
-#endif   
     char thread_id[24];
     wifi_netlink_thread_info_t *core_thread_socket = NULL;
+#endif
 
+#ifdef DOCKER_SIM_PORT
+    g_wifi_hal.nl_cb = NULL;
+    g_wifi_hal.nl = NULL;
+    g_wifi_hal.nl_event = NULL;
+    g_wifi_hal.nl80211_id = -1;
+    g_wifi_hal.nl_event_fd = -1;
+    g_wifi_hal.link_fd = -1;
+#else
     core_thread_socket = create_nl80211_socket();
 
     if (!core_thread_socket) {
@@ -6882,6 +6894,7 @@ int init_nl80211()
 
     g_wifi_hal.nl_event_fd = nl_socket_get_fd((struct nl_sock *)g_wifi_hal.nl_event);
     wifi_hal_info_print("%s:%d: hal nl sock: %d\n", __func__, __LINE__, g_wifi_hal.nl_event_fd);
+#endif /* DOCKER_SIM_PORT */
 
     // dump all phy info
     g_wifi_hal.num_radios = 0;
@@ -6928,6 +6941,7 @@ int init_nl80211()
 
     wifi_hal_dbg_print("%s:%d: Number of supported radios: %d\n", __func__, __LINE__, g_wifi_hal.num_radios);
 
+#ifndef DOCKER_SIM_PORT
     g_wifi_hal.link_fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
     if (g_wifi_hal.link_fd  > 0) {
         struct sockaddr_nl local;
@@ -6945,6 +6959,7 @@ int init_nl80211()
         wifi_hal_error_print("%s:%d: socket creation failed for link_fd\n", __func__, __LINE__);
         return -1;
     }
+#endif
 
 #ifndef DOCKER_SIM_PORT
     for (i = 0; i < g_wifi_hal.num_radios; i++) {
